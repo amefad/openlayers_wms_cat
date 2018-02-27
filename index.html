@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="./resources/ol.css">
+        <link rel="stylesheet" href="./resources/ol3-layerswitcher.css">
+        <link rel="stylesheet" href="./resources/qgis2web.css">
+        <style>
+        .ol-geocoder.gcd-gl-container {
+            top: 135px!important;
+        }
+		
+        .ol-geocoder .gcd-gl-btn {
+            width: 21px!important;
+            height: 21px!important;
+        }
+        .ol-geocoder.gcd-cat-container {
+            top: 165px!important;
+        }
+		
+        </style>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+        <style>
+        html, body {
+            background-color: #ffffff;
+        }
+        </style>
+
+        <style>
+        .geolocate {
+            top: 65px;
+            left: .5em;
+        }
+        .ol-touch .geolocate {
+            top: 80px;
+        }
+        </style>
+    <link href="./resources/ol-geocoder.min.css" rel="stylesheet">
+<style>
+.tooltip {
+  position: relative;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  color: white;
+  padding: 4px 8px;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+.tooltip-measure {
+  opacity: 1;
+  font-weight: bold;
+}
+.tooltip-static {
+  background-color: #ffcc33;
+  color: black;
+  border: 1px solid white;
+}
+.tooltip-measure:before,
+.tooltip-static:before {
+  border-top: 6px solid rgba(0, 0, 0, 0.5);
+  border-right: 6px solid transparent;
+  border-left: 6px solid transparent;
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  margin-left: -7px;
+  left: 50%;
+}
+.tooltip-static:before {
+  border-top-color: #ffcc33;
+}
+.measure-control {
+  top: 100px;
+  left: .5em;
+}
+.ol-touch .measure-control {
+  top: 130px;
+}
+
+@media screen {
+  div.screeFooter {
+    position: fixed;
+    bottom: 0;
+  }
+
+  div.printFooter {
+    display: none;
+  }
+}
+@media print {
+
+
+  div.screenFooter {
+    display: none;
+  }
+}
+
+  div.printFooter {
+    position: fixed;
+    bottom: 0;
+  }
+}
+
+
+.progress {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  width: 30%;
+  height: 5px;
+  opacity: 1;
+}
+
+</style>
+
+        <title>Consultazione WMS Catasto</title>
+		<!-- codice dipendente da jquery -->
+        <script src="./resources/jquery-3.3.1.min.js"></script>
+        <script src="./resources/jquery-ui.min.js"></script>
+        <link rel="stylesheet" href="./resources/jquery-ui.min.css">
+        <link rel="stylesheet" href="./resources/jquery-ui.structure.min.css">
+        <link rel="stylesheet" href="./resources/jquery-ui.theme.min.css">		
+		<script type="text/javascript">
+		var loc = window.location.href+'';
+			if (loc.indexOf('http://')==0){
+			window.location.href = loc.replace('http://','https://');
+			}
+		</script>
+		
+    </head>
+    <body>
+		
+        <div id="map">
+
+            <div id="popup" class="ol-popup">
+                <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+                <div id="popup-content"></div>
+            </div>
+
+        </div>
+		<div class="progress">
+			<div id="js-progress-bar" class="progress-bar progress-bar-info"></div>
+		</div>
+		<div id ="screenFooter">
+			<input id="slider" class="ol-control ol-slider" type="range" min="0" max="1" step="0.1" value="0.7" oninput="visualizza_catasto(this.value)">
+			<button id="bg_dg_opener" style="position:absolute;right:0;">Aggiungi Sfondo</button>
+			<div id ="bg_dialog_confirm">
+			<strong>Attenzione:</strong> la licenza con con cui è rilasciato il servizio WMS da parte dell'Agenzia dellle Entrate 
+			vieta l'uso commerciale e la produzione di opere derivate. Cliccando su ACCETTO l'utente 
+			dichiara di aver compreso i limiti di utilizzo e di adeguarsi ad essi.
+			</div>
+			<div id = "bg_add_dialog">
+			Seleziona uno dei livelli preimpostati o aggiungi un WMS personalizzato (vedi le istruzioni e alcuni suggerimenti su 
+			<a href="lista_sfondi.html" target="_blank">questa pagina</a><br>
+			Tipo: <select id="tipolink" name( onchange="aggiornacampi(this.value);" >
+				<option value="" selected>Scegli...</option>
+				<option value="osm">OpenStreetmap Tiles</option>
+				<option value="gmap_sat">Google Satellite</option>
+				<option value="bingmap_aer">Bing Aerial</option>
+				<option value="igm">Carta IGM 1966 ca.</option>
+				<option value="wms">Servizio WMS Personalizzato</option>
+				
+			</select><br>
+			<span id="parametri_wms">
+			Url: <input id="sfondolink" class="" type="text" value=""><br>
+			Layer: <input id="sfondolayer" class="" type="text" value=""><br>
+			SRS: 
+				<select id="srs_link" name="srs" >
+				<option value="proj4326">EPSG:4326</option>				
+				<option value="projUTM32">EPSG:25832</option>
+				<option value="projUTM32_84">EPSG:32632</option>
+				<option value="proj3003">EPSG:3003</option>
+				<option value="proj3857">EPSG:3857</option>
+				
+				</select>
+			</span>
+			<!--<input id="addsfondo" class="ol-control ol-right-side" type="button" value="Aggiungi"onclick="cambiasfondo();$( this ).dialog('close' );">-->
+			</div>
+
+		</div>
+		<div class="printFooter">&copy; Agenzia delle Entrate. Stampato da:
+		<script type="text/javascript"> document.write(window.location.host);</script>
+		<strong>Consultazione informativa  e gratuita - NON COSTITUISCE VISURA UFFICIALE</strong>
+		</div>
+        <script src="resources/qgis2web_expressions.js"></script>
+        <script src="resources/polyfills.js"></script>
+        <script src="./resources/functions.js"></script>
+        <script src="./resources/ol.js"></script>
+        <script src="./resources/ol3-layerswitcher.js"></script>
+		<script src="./resources/proj4.js"></script>
+		<script src="./resources/ol-geocoder.js"></script>
+		<script type="text/javascript">
+		$.get('../bingmkey', function(data){
+			bmk = data;
+			load_bingmaplayer();
+			});
+		$.get('../googleMapsKey', function(data){gmk = data;});	
+		</script>
+        <script src="./layers/layers.js" type="text/javascript"></script> 
+        <script src="./resources/qgis2web.js"></script>
+        <script src="./resources/Autolinker.min.js"></script>
+
+		<script type="text/javascript">
+		$(function(){
+			hocapito = 0;
+			$( "#bg_dialog_confirm" ).dialog({
+			  autoOpen: false,
+			  resizable: false,
+			  height: "auto",
+			  width: 400,
+			  modal: true,
+			  buttons: {
+				"Accetto": function() {
+				  hocapito = 1;
+				  $( this ).dialog( "close" );
+				  $( "#bg_add_dialog" ).dialog( "open" );
+				},
+				"Rinuncio.": function() {
+				  $( this ).dialog( "close" );
+				}
+			  }
+			});
+		
+			$( "#bg_add_dialog" ).dialog({ 
+				autoOpen: false,
+				modal: true,
+				buttons: {
+				"Cambia Sfondo": function() {
+					cambiasfondo();
+				  $( this ).dialog( "close" );
+					}
+				}
+				});
+			$( "#bg_dg_opener" ).click(function() {
+			if (hocapito == 0){
+				$( "#bg_dialog_confirm" ).dialog( "open" );
+			}else{
+				$( "#bg_add_dialog" ).dialog( "open" );
+				}
+			});
+		});
+		</script>
+		
+    </body>
+</html>

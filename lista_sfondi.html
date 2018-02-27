@@ -1,0 +1,56 @@
+<html>
+<head>
+<title>Lista servizi WMS e TMS</title>
+		<!-- codice dipendente da jquery -->
+        <script src="./resources/jquery-3.3.1.slim.min.js"></script>
+        <script src="./resources/jquery-ui.min.js"></script>
+        <link rel="stylesheet" href="./resources/jquery-ui.min.css">
+        <link rel="stylesheet" href="./resources/jquery-ui.structure.min.css">
+        <link rel="stylesheet" href="./resources/jquery-ui.theme.min.css">
+		<script type="text/javascript">
+		function copyToClipboard(element) {
+			  var $temp = $("<input>");
+			  $("body").append($temp);
+			  $temp.val($(element).text()).select();
+			  document.execCommand("copy");
+			  $temp.remove();
+			}
+			
+		function compilaForm(id){
+		urlToCopy = $('#url_' + left(id, 1)).val();
+		lyrToCopy = $('#lyr_' + id).val();
+		srsToCopy = $('#srs_' + id).val():
+		
+		console.info(urlToCopy + ', ' + lyrToCopy + ', ' + srsToCopy)
+		
+		}
+			
+		</script>
+		
+		
+</head>
+<body>
+<h2>Lista sfondi utilizzabili nel visualizzatore Catasto WMS</h2>
+<ol>
+<li> Tutta italia</li>
+	<ul>
+		<li>
+			url:<span id="url_1">http://wms.pcn.minambiente.it/ogc?map=/ms_ogc/WMS_v1.3/raster/IGM_25000.map</span><br>
+			layer: <span id="lyr_1">CB.IGM25000</span><br>
+			Srs:<span id="srs_1">EPSG:3857</span><button onclick="copyToClipboard('#lyr1');">Compila Form</button>
+		</li>
+	</ul>
+<li>Regione Veneto</li>
+	<ul>
+		<li>
+			url:<span id="url_2">http://idt.regione.veneto.it/erdas-iws/ogc/wms/Basi</span>
+		</li>
+			layers: <span id="lyr20">CTRN_BN</span><button onclick="copyToClipboard('#lyr20');">Compila Form</button><br>
+			<span id="lyr21">CTR_COL</span><button onclick="copyToClipboard('#lyr21');">Copia Layer</button><br>
+		</li>
+	</ul>
+	
+</ol>
+
+</body>
+</html>
